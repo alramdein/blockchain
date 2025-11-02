@@ -1,0 +1,169 @@
+basePath: /
+definitions:
+  api.BlockInfo:
+    properties:
+      data:
+        type: string
+      hash:
+        type: string
+      index:
+        type: integer
+      nonce:
+        type: integer
+      previous_hash:
+        type: string
+      timestamp:
+        type: integer
+    type: object
+  api.ChainResponse:
+    properties:
+      chain:
+        items:
+          $ref: '#/definitions/api.BlockInfo'
+        type: array
+      difficulty:
+        type: integer
+      is_valid:
+        type: boolean
+      length:
+        type: integer
+    type: object
+  api.TransferRequest:
+    properties:
+      amount:
+        minimum: 1
+        type: integer
+      from:
+        type: string
+      to:
+        type: string
+    required:
+    - amount
+    - from
+    - to
+    type: object
+  api.TransferResponse:
+    properties:
+      amount:
+        type: integer
+      block_index:
+        type: integer
+      from:
+        type: string
+      message:
+        type: string
+      to:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: A simple blockchain implementation with transfer and balance tracking
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Blockchain API
+  version: "1.0"
+paths:
+  /balance/{address}:
+    get:
+      consumes:
+      - application/json
+      description: Returns the current balance for the specified address
+      parameters:
+      - description: Address to check balance for
+        in: path
+        name: address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get balance for an address
+      tags:
+      - Blockchain
+  /chain:
+    get:
+      consumes:
+      - application/json
+      description: Returns the complete blockchain with all blocks and validation
+        status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.ChainResponse'
+      summary: Get the entire blockchain
+      tags:
+      - Blockchain
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Returns the health status of the API
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Health check endpoint
+      tags:
+      - Health
+  /transfer:
+    post:
+      consumes:
+      - application/json
+      description: Create a new transaction to transfer coins from one address to
+        another
+      parameters:
+      - description: Transfer details
+        in: body
+        name: transfer
+        required: true
+        schema:
+          $ref: '#/definitions/api.TransferRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.TransferResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Transfer coins between addresses
+      tags:
+      - Blockchain
+schemes:
+- http
+swagger: "2.0"
